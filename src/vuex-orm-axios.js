@@ -1,10 +1,12 @@
 import Context from './common/context';
-import Action from './actions/Action'
-import Fetch from './actions/Fetch'
-import Get from './actions/Get'
-import Create from './actions/Create'
-import Update from './actions/Update'
-import Delete from './actions/Delete'
+import Action from './actions/Action';
+import Fetch from './actions/Fetch';
+import Get from './actions/Get';
+import Create from './actions/Create';
+import Update from './actions/Update';
+import Delete from './actions/Delete';
+
+import map from "lodash/map";
 
 export default class VuexOrmAxios {
   /**
@@ -21,7 +23,7 @@ export default class VuexOrmAxios {
   /**
    * This method will setup following Vuex actions: $fetch, $get, $create, $update, $delete
    */
-  setupActions () {
+  setupActions() {
     const context = Context.getInstance();
 
     context.components.Actions.$fetch = Fetch.call.bind(Fetch);
@@ -35,13 +37,13 @@ export default class VuexOrmAxios {
    * This method will setup following model methods: Model.$fetch, Model.$get, Model.$create,
    * Model.$update, Model.$delete
    */
-  setupModels () {
+  setupModels() {
     const context = Context.getInstance();
 
     /**
      * Transform Model and Modules
      */
-    _.map(context.database.entities, entity => {
+    map(context.database.entities, entity => {
       entity.module = Action.transformModule(entity.module);
       entity.model = Action.transformModel(entity.model);
       return entity;

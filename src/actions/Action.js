@@ -1,4 +1,8 @@
-import _ from 'lodash';
+import merge from "lodash/merge";
+import forEach from "lodash/forEach";
+import has from "lodash/has";
+import map from "lodash/map";
+
 import Context from '../common/context';
 import { ModuleConfig, ModelConfig } from '../support/interfaces';
 
@@ -8,7 +12,7 @@ export default class Action {
    * @param {object} model
    */
   static transformModule(module) {
-    return _.merge({}, ModuleConfig, module);
+    return merge({}, ModuleConfig, module);
   }
 
   /**
@@ -17,8 +21,8 @@ export default class Action {
    */
   static transformModel(model) {
     const context = Context.getInstance();
-    ModelConfig.http = _.merge({}, ModelConfig.http, context.options.http);
-    model.methodConf = _.merge({}, ModelConfig, model.methodConf);
+    ModelConfig.http = merge({}, ModelConfig.http, context.options.http);
+    model.methodConf = merge({}, ModelConfig, model.methodConf);
     model.methodConf.http.url = (model.methodConf.http.url === '/') ? `/${model.entity}` : model.methodConf.http.url;
 
     /**
@@ -26,7 +30,7 @@ export default class Action {
      */
     model.getFields = () => {
       if (!model.cachedFields) {
-        model.cachedFields = _.merge({}, {
+        model.cachedFields = merge({}, {
           $id: model.attr(undefined),
           $isUpdating: model.boolean(false),
           $updateErrors: model.attr([]),
@@ -47,12 +51,12 @@ export default class Action {
    * @param {object} model
    * @param {object} config
    */
-  static transformParams (type, model, config = {}) {
+  static transformParams(type, model, config = {}) {
     let endpoint = `${model.methodConf.http.url}${model.methodConf.methods[type].http.url}`;
-    let params = _.map(endpoint.match(/(\/?)(\:)([A-z]*)/gm), (param) => { return param.replace('/', '') })
+    let params = map(endpoint.match(/(\/?)(\:)([A-z]*)/gm), (param) => { return param.replace('/', '') })
 
-    _.forEach(params, (param) => {
-      const paramValue = _.has(config.params, param.replace(':', '')) ? config.params[param.replace(':', '')] : ''
+    forEach(params, (param) => {
+      const paramValue = has(config.params, param.replace(':', '')) ? config.params[param.replace(':', '')] : ''
       endpoint = endpoint.replace(param, paramValue).replace('//', '/')
     })
     if (config.query) endpoint += `?${Object.keys(config.query).map(k => `${encodeURIComponent(k)}=${encodeURIComponent(config.query[k])}`).join('&')}`;

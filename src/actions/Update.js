@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import merge from 'lodash/merge';
 import Axios from '../orm/axios';
 import Action from './Action'
 import Context from '../common/context'
@@ -9,15 +9,15 @@ export default class Update extends Action {
    * @param {object} store
    * @param {object} params
    */
-  static async call ({ state, commit }, params = {}) {
-    if(!params.data || typeof params !== 'object') {
+  static async call({ state, commit }, params = {}) {
+    if (!params.data || typeof params !== 'object') {
       throw new TypeError("You must include a data object in the params to send a POST request", params)
     }
 
     const context = Context.getInstance();
     const model = context.getModelFromState(state);
     const endpoint = Action.transformParams('$update', model, params);
-    const axios =  new Axios(model.methodConf.http);
+    const axios = new Axios(model.methodConf.http);
     const request = axios.put(endpoint, params.data);
 
     this.onRequest(model, params);
@@ -52,7 +52,7 @@ export default class Update extends Action {
   static onSuccess(model, params, data) {
     model.update({
       where: params.params.id || data.id,
-      data: _.merge({}, data, {
+      data: merge({}, data, {
         $isUpdating: false,
         $updateErrors: []
       })
